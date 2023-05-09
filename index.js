@@ -26,27 +26,33 @@ async function run() {
     await client.connect();
     const caffeCallection = client.db("caffeeDB").collection("caffee");
 
-
+    //!Get all data
     app.get('/caffees', async(req,res)=>{
       const cursor = caffeCallection.find();
       const rusult = await cursor.toArray()
       res.send(rusult)
     })
-
+    //! get single data
     app.get('/caffees/:id', async(req,res)=>{
       const id = req.params.id;
       const qurey = {_id: new ObjectId(id)}
       const rusult = await caffeCallection.findOne(qurey)
       res.send(rusult)
     })
-
+    //!post data
     app.post('/caffees', async(req,res)=>{
       const newCaffee = req.body
       console.log(newCaffee);
       const rusult = await caffeCallection.insertOne(newCaffee);
       res.send(rusult);
     })
-
+    //!delete data
+    app.delete('/caffees/:id', async(req,res)=>{
+      const id = req.params.id;
+      const qurey = {_id: new ObjectId(id)}
+      const rusult = await caffeCallection.deleteOne(qurey)
+      res.send(rusult)
+    })
 
 
 
