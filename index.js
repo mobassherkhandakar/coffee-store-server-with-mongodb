@@ -23,42 +23,57 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const caffeCallection = client.db("caffeeDB").collection("caffee");
 
     //!Get all data
-    app.get('/caffees', async(req,res)=>{
+    app.get("/caffees", async (req, res) => {
       const cursor = caffeCallection.find();
-      const rusult = await cursor.toArray()
-      res.send(rusult)
-    })
+      const rusult = await cursor.toArray();
+      res.send(rusult);
+    });
     //! get single data
-    app.get('/caffees/:id', async(req,res)=>{
+    app.get("/caffees/:id", async (req, res) => {
       const id = req.params.id;
-      const qurey = {_id: new ObjectId(id)}
-      const rusult = await caffeCallection.findOne(qurey)
-      res.send(rusult)
-    })
+      const qurey = { _id: new ObjectId(id) };
+      const rusult = await caffeCallection.findOne(qurey);
+      res.send(rusult);
+    });
+    //!put method
+    app.put("/caffees/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const caffeUser = req.body;
+      const newCaffee = {
+        $set: {
+          name: caffeUser.name,
+          quantity: caffeUser.quantity,
+          supplier: caffeUser.supplier,
+          taste: caffeUser.taste,
+          category: caffeUser.category,
+          details: caffeUser.details,
+          photo: caffeUser.photo,
+        },
+      };
+      const result = await caffeCallection.updateOne(filter, newCaffee, options)
+      res.send(result)
+    });
+
     //!post data
-    app.post('/caffees', async(req,res)=>{
-      const newCaffee = req.body
+    app.post("/caffees", async (req, res) => {
+      const newCaffee = req.body;
       console.log(newCaffee);
       const rusult = await caffeCallection.insertOne(newCaffee);
       res.send(rusult);
-    })
+    });
     //!delete data
-    app.delete('/caffees/:id', async(req,res)=>{
+    app.delete("/caffees/:id", async (req, res) => {
       const id = req.params.id;
-      const qurey = {_id: new ObjectId(id)}
-      const rusult = await caffeCallection.deleteOne(qurey)
-      res.send(rusult)
-    })
-
-
-
-
-
-
+      const qurey = { _id: new ObjectId(id) };
+      const rusult = await caffeCallection.deleteOne(qurey);
+      res.send(rusult);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
